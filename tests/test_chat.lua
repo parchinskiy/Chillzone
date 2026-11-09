@@ -330,26 +330,28 @@ T.test("метка канала: настройка переключает вв�
 	local ns = c.ns
 	ns.UI.Toggle("settings")
 	local check = ns.UI.chatTagNative
-	T.no(check:GetChecked(), "по умолчанию галочка снята")
+	T.ok(check:GetChecked(), "по умолчанию галочка включена")
+	local native = c.env.ChatFrame1EditBox
+	c:CallHooks("SetItemRef", ns.Chat.TAG_LINK .. "L", "[Главы]", "LeftButton")
+	T.eq(native:GetText(), "/cz3 ")
+	T.ok(native:HasFocus())
+	T.eq(ns.UI.Current(), "settings")
+
+	native:ClearFocus()
+	check:SetChecked(false)
+	check.scripts.OnClick(check)
 	c:CallHooks("SetItemRef", ns.Chat.TAG_LINK .. "C", "[Офицеры]", "LeftButton")
 	T.eq(ns.UI.Current(), "chat")
 	T.eq(ns.ChatPane.Current(), "C")
 	T.ok(ns.ChatPane.frames.box:HasFocus())
-	T.no(c.env.ChatFrame1EditBox:HasFocus())
-
-	ns.UI.Toggle("settings")
-	check:SetChecked(true)
-	check.scripts.OnClick(check)
-	c:CallHooks("SetItemRef", ns.Chat.TAG_LINK .. "L", "[Главы]", "LeftButton")
-	T.eq(c.env.ChatFrame1EditBox:GetText(), "/cz3 ")
-	T.eq(ns.UI.Current(), "settings")
+	T.no(native:HasFocus())
 
 	local db = ns.db
 	c:Logout()
 	c = w:Client({ first = "Автор", surname = "Чата", guild = "Чиллзон", db = db })
 	ns = c.ns
 	ns.UI.Toggle("settings")
-	T.ok(ns.UI.chatTagNative:GetChecked(), "включённая настройка сохранилась после входа")
+	T.no(ns.UI.chatTagNative:GetChecked(), "выключенная настройка сохранилась после входа")
 end)
 
 T.test("окно: без дубля в чат игры строка только в окне", function()
@@ -484,6 +486,7 @@ T.test("метка: отмена меню, чужие ссылки и боевы
 	T.no(chat.TagClick(chat.TAG_LINK .. "X", "", "RightButton"), "неизвестный канал")
 	T.no(chat.TagClick("item:19019", "", "RightButton"), "чужая ссылка")
 	T.no(chat.TagClick(chat.TAG_LINK .. "A", "", "MiddleButton"), "посторонняя кнопка")
+	c.ns.char.chatTagNative = false
 	c:CallHooks("SetItemRef", chat.TAG_LINK .. "A", "[Чиллзон]", "LeftButton")
 	T.no(menu:IsShown(), "левый щелчок закрывает меню и открывает окно")
 	T.eq(ui.Current(), "chat")
